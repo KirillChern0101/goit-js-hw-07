@@ -51,8 +51,8 @@ import { galleryItems } from "./gallery-items.js";
 console.log(galleryItems);
 const gallery = document.querySelector(".gallery");
 const markup = createGalleryItemsMarkup(galleryItems);
-galleryItems.insertAdjacentHTML("beforeend", markup);
-galleryItems.addEventListener("click", onClick);
+gallery.insertAdjacentHTML("beforeend", markup);
+gallery.addEventListener("click", onClick);
 
 function createGalleryItemsMarkup(items) {
   return items
@@ -69,4 +69,34 @@ function createGalleryItemsMarkup(items) {
     </li>`;
     })
     .join("");
+}
+
+function onClick(evt) {
+  evt.preventDefault();
+  if (evt.target.nodName !== "IMG") return;
+
+  const isItemImage = evt.target.classlist.contains("gallery_image");
+  if (!isItemImage) return;
+  const imgUrl = evt.target.dataset.source;
+  const instance = basicLightbox.create(
+    `<img src="${imgUrl}" width="1200" height="auto" />`,
+
+    {
+      onShow: (instance) => {
+        window.addEventListener("keydown", onEscKeyPress);
+      },
+      onClose: (instance) => {
+        window.removeEventListener("keydown", onEscKeyPress);
+      },
+    }
+  );
+
+  instance.show();
+
+  function onEscKeyPress(evt) {
+    const ESCAPE = "Escape";
+    const isEscKey = evt.code === ESCAPE;
+    if (!isEscKey) return;
+    instance.close();
+  }
 }
